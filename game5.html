@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoType - Game Typing Lingkungan Sekolah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        
+        .typing-cursor {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .correct-char {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .incorrect-char {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .current-char {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .floating-score {
+            animation: floatUp 1s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-50px); opacity: 0; }
+        }
+        
+        .pulse-green {
+            animation: pulseGreen 0.3s ease-in-out;
+        }
+        
+        @keyframes pulseGreen {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); background-color: #10b981; }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-400 via-blue-500 to-purple-600 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">🌱 EcoType</h1>
+            <p class="text-xl text-green-100">Game Typing Aksi Lingkungan Sekolah</p>
+        </div>
+
+        <!-- Game Stats -->
+        <div class="bg-white/20 backdrop-blur-lg rounded-2xl p-6 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="bg-white/30 rounded-xl p-4">
+                    <div class="text-2xl font-bold text-white" id="score">0</div>
+                    <div class="text-sm text-green-100">Skor</div>
+                </div>
+                <div class="bg-white/30 rounded-xl p-4">
+                    <div class="text-2xl font-bold text-white" id="wpm">0</div>
+                    <div class="text-sm text-green-100">WPM</div>
+                </div>
+                <div class="bg-white/30 rounded-xl p-4">
+                    <div class="text-2xl font-bold text-white" id="accuracy">100%</div>
+                    <div class="text-sm text-green-100">Akurasi</div>
+                </div>
+                <div class="bg-white/30 rounded-xl p-4">
+                    <div class="text-2xl font-bold text-white" id="timer">60</div>
+                    <div class="text-sm text-green-100">Waktu</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="bg-white rounded-2xl shadow-2xl p-8 mb-6">
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">💚 Ketik kalimat tentang aksi lingkungan ini:</h3>
+                <div id="sentence-display" class="text-2xl leading-relaxed p-4 bg-gray-50 rounded-xl border-2 border-gray-200 min-h-[100px] font-mono"></div>
+            </div>
+            
+            <div class="mb-4">
+                <input 
+                    type="text" 
+                    id="typing-input" 
+                    class="w-full p-4 text-xl border-2 border-gray-300 rounded-xl focus:border-green-500 focus:outline-none font-mono"
+                    placeholder="Mulai mengetik di sini..."
+                    disabled
+                >
+            </div>
+            
+            <div class="flex gap-4 justify-center">
+                <button id="start-btn" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl font-semibold transition-all transform hover:scale-105">
+                    🎮 Mulai Game
+                </button>
+                <button id="reset-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold transition-all transform hover:scale-105" disabled>
+                    🔄 Main Lagi
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="bg-white rounded-2xl shadow-2xl p-8 hidden">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">🎉 Hasil Permainan</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-green-100 rounded-xl p-6">
+                        <div class="text-3xl font-bold text-green-600" id="final-score">0</div>
+                        <div class="text-gray-600">Total Skor</div>
+                    </div>
+                    <div class="bg-blue-100 rounded-xl p-6">
+                        <div class="text-3xl font-bold text-blue-600" id="final-wpm">0</div>
+                        <div class="text-gray-600">Kata per Menit</div>
+                    </div>
+                    <div class="bg-purple-100 rounded-xl p-6">
+                        <div class="text-3xl font-bold text-purple-600" id="final-accuracy">100%</div>
+                        <div class="text-gray-600">Akurasi</div>
+                    </div>
+                </div>
+                <div id="performance-message" class="text-xl font-semibold mb-4"></div>
+                <div id="eco-tip" class="bg-green-50 border-l-4 border-green-400 p-4 rounded text-left"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Score Animation Container -->
+    <div id="floating-container" class="fixed top-0 left-0 w-full h-full pointer-events-none z-50"></div>
+
+    <script>
+        const sentences = [
+            "Membuang sampah pada tempatnya adalah tanggung jawab setiap warga sekolah",
+            "Mematikan lampu dan kipas angin saat meninggalkan kelas menghemat energi listrik",
+            "Menggunakan kedua sisi kertas untuk menulis mengurangi pemborosan kertas",
+            "Membawa botol minum sendiri mengurangi penggunaan plastik sekali pakai",
+            "Menanam pohon di area sekolah membantu menyerap karbon dioksida",
+            "Memilah sampah organik dan anorganik memudahkan proses daur ulang",
+            "Menggunakan transportasi umum atau sepeda ke sekolah mengurangi polusi udara",
+            "Tidak membuang makanan sisa di kantin sekolah mengurangi limbah organik",
+            "Menggunakan tas kain untuk berbelanja di kantin sekolah ramah lingkungan",
+            "Menyiram tanaman dengan air bekas cucian beras menghemat air bersih",
+            "Membuat kompos dari sampah daun kering di halaman sekolah bermanfaat",
+            "Menggunakan pensil kayu daripada pulpen plastik lebih ramah lingkungan",
+            "Mencetak dokumen hanya jika diperlukan menghemat kertas dan tinta",
+            "Membersihkan selokan sekolah mencegah banjir dan penyakit",
+            "Mengadakan program bank sampah di sekolah mengajarkan nilai ekonomi limbah"
+        ];
+
+        let currentSentence = '';
+        let currentIndex = 0;
+        let startTime = null;
+        let gameTime = 60;
+        let timer = null;
+        let score = 0;
+        let correctChars = 0;
+        let totalChars = 0;
+        let gameActive = false;
+
+        const sentenceDisplay = document.getElementById('sentence-display');
+        const typingInput = document.getElementById('typing-input');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const scoreEl = document.getElementById('score');
+        const wpmEl = document.getElementById('wpm');
+        const accuracyEl = document.getElementById('accuracy');
+        const timerEl = document.getElementById('timer');
+        const resultsEl = document.getElementById('results');
+        const floatingContainer = document.getElementById('floating-container');
+
+        function getRandomSentence() {
+            return sentences[Math.floor(Math.random() * sentences.length)];
+        }
+
+        function displaySentence() {
+            currentSentence = getRandomSentence();
+            currentIndex = 0;
+            updateSentenceDisplay();
+        }
+
+        function updateSentenceDisplay() {
+            let html = '';
+            for (let i = 0; i < currentSentence.length; i++) {
+                let className = '';
+                if (i < currentIndex) {
+                    className = 'correct-char';
+                } else if (i === currentIndex) {
+                    className = 'current-char';
+                }
+                html += `<span class="${className}">${currentSentence[i]}</span>`;
+            }
+            sentenceDisplay.innerHTML = html;
+        }
+
+        function startGame() {
+            gameActive = true;
+            startTime = Date.now();
+            score = 0;
+            correctChars = 0;
+            totalChars = 0;
+            gameTime = 60;
+            
+            displaySentence();
+            typingInput.disabled = false;
+            typingInput.focus();
+            typingInput.value = '';
+            
+            startBtn.disabled = true;
+            resetBtn.disabled = false;
+            resultsEl.classList.add('hidden');
+            
+            timer = setInterval(() => {
+                gameTime--;
+                timerEl.textContent = gameTime;
+                
+                if (gameTime <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(timer);
+            typingInput.disabled = true;
+            startBtn.disabled = false;
+            resetBtn.disabled = true;
+            
+            showResults();
+        }
+
+        function showResults() {
+            const finalScore = score;
+            const timeElapsed = (60 - gameTime) / 60;
+            const wordsTyped = correctChars / 5;
+            const finalWPM = timeElapsed > 0 ? Math.round(wordsTyped / timeElapsed) : 0;
+            const finalAccuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            
+            document.getElementById('final-score').textContent = finalScore;
+            document.getElementById('final-wpm').textContent = finalWPM;
+            document.getElementById('final-accuracy').textContent = finalAccuracy + '%';
+            
+            let message = '';
+            let tip = '';
+            
+            if (finalWPM >= 40 && finalAccuracy >= 90) {
+                message = '🌟 Luar biasa! Kamu adalah Eco Warrior sejati!';
+                tip = '💡 Tip Lingkungan: Ajak teman-temanmu untuk ikut serta dalam program sekolah hijau. Bersama-sama kita bisa membuat perubahan yang lebih besar!';
+            } else if (finalWPM >= 25 && finalAccuracy >= 80) {
+                message = '🌱 Bagus sekali! Kamu peduli lingkungan!';
+                tip = '💡 Tip Lingkungan: Mulai kebiasaan kecil seperti mematikan keran air dengan rapat dan menggunakan kertas bekas untuk coret-coretan.';
+            } else {
+                message = '🌿 Terus berlatih! Setiap usaha kecil berharga!';
+                tip = '💡 Tip Lingkungan: Ingat 3R - Reduce (kurangi), Reuse (gunakan kembali), Recycle (daur ulang). Mulai dari hal sederhana di sekolah!';
+            }
+            
+            document.getElementById('performance-message').textContent = message;
+            document.getElementById('eco-tip').textContent = tip;
+            
+            resultsEl.classList.remove('hidden');
+        }
+
+        function createFloatingScore(points) {
+            const floating = document.createElement('div');
+            floating.className = 'floating-score fixed text-2xl font-bold text-green-500 pointer-events-none z-50';
+            floating.textContent = `+${points}`;
+            floating.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+            floating.style.top = '50%';
+            
+            floatingContainer.appendChild(floating);
+            
+            setTimeout(() => {
+                floating.remove();
+            }, 1000);
+        }
+
+        typingInput.addEventListener('input', (e) => {
+            if (!gameActive) return;
+            
+            const typed = e.target.value;
+            const currentChar = currentSentence[currentIndex];
+            
+            if (typed.length > 0) {
+                totalChars++;
+                
+                if (typed[typed.length - 1] === currentChar) {
+                    correctChars++;
+                    currentIndex++;
+                    
+                    // Add points
+                    score += 10;
+                    createFloatingScore(10);
+                    
+                    // Update display
+                    updateSentenceDisplay();
+                    
+                    // Check if sentence is complete
+                    if (currentIndex >= currentSentence.length) {
+                        score += 50; // Bonus for completing sentence
+                        createFloatingScore(50);
+                        displaySentence();
+                        e.target.value = '';
+                    }
+                } else {
+                    // Wrong character - visual feedback
+                    typingInput.classList.add('border-red-500');
+                    setTimeout(() => {
+                        typingInput.classList.remove('border-red-500');
+                    }, 200);
+                }
+                
+                // Update stats
+                updateStats();
+            }
+        });
+
+        function updateStats() {
+            scoreEl.textContent = score;
+            
+            const timeElapsed = startTime ? (Date.now() - startTime) / 1000 / 60 : 0;
+            const wordsTyped = correctChars / 5;
+            const wpm = timeElapsed > 0 ? Math.round(wordsTyped / timeElapsed) : 0;
+            wpmEl.textContent = wpm;
+            
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            accuracyEl.textContent = accuracy + '%';
+        }
+
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', () => {
+            location.reload();
+        });
+
+        // Initialize
+        displaySentence();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9726db5eb0d8c6b2',t:'MTc1NTc0NDk4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

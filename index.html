@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSchool Games - Dashboard Game Lingkungan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .game-card {
+            transition: all 0.3s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .eco-bg {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .leaf-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .btn-primary {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+        }
+        
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="eco-bg min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="text-4xl leaf-animation">🌱</div>
+                    <div class="text-center sm:text-left">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-green-800">EcoSchool Games</h1>
+                        <p class="text-sm text-green-600">Belajar Lingkungan Sambil Bermain</p>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <div class="stats-card bg-green-100 px-4 py-2 rounded-full border-2 border-green-200">
+                        <span class="text-green-800 font-semibold text-sm">🏆 Poin: <span id="totalPoints" class="font-bold">0</span></span>
+                    </div>
+                    <div class="stats-card bg-blue-100 px-4 py-2 rounded-full border-2 border-blue-200">
+                        <span class="text-blue-800 font-semibold text-sm">🎮 Game: <span id="gamesPlayed" class="font-bold">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <!-- Welcome Section -->
+        <div class="bg-white rounded-3xl shadow-lg p-6 sm:p-8 mb-8 border border-green-100">
+            <div class="text-center">
+                <div class="text-6xl mb-4">🌍</div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Selamat Datang di EcoSchool Games!</h2>
+                <p class="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Jelajahi dunia ramah lingkungan melalui permainan edukatif yang seru dan menyenangkan. 
+                    Pelajari cara menjaga lingkungan sekolah sambil mengumpulkan poin dan prestasi!
+                </p>
+            </div>
+        </div>
+
+        <!-- Games Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <!-- Game 1: Eco Quiz -->
+            <div class="game-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-br from-green-400 to-green-600 p-6 text-white text-center">
+                    <div class="text-5xl mb-3">🧠</div>
+                    <h3 class="text-xl font-bold">Eco Quiz</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4 leading-relaxed">Uji pengetahuan lingkunganmu dengan kuis interaktif yang menantang dan edukatif.</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">⭐ Mudah</span>
+                        <span class="text-gray-500 text-sm">⏱️ 5-10 menit</span>
+                    </div>
+                    <a href="game4.html" class="btn-primary block w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-xl text-center">
+                        🎯 Mulai Quiz
+                    </a>
+                </div>
+            </div>
+
+            <!-- Game 2: Eco Typing -->
+            <div class="game-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-br from-yellow-400 to-orange-500 p-6 text-white text-center">
+                    <div class="text-5xl mb-3">⌨️</div>
+                    <h3 class="text-xl font-bold">Eco Typing</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4 leading-relaxed">Tingkatkan kecepatan mengetik sambil belajar fakta menarik tentang lingkungan.</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">⭐ Sedang</span>
+                        <span class="text-gray-500 text-sm">⏱️ 3-5 menit</span>
+                    </div>
+                    <a href="game5.html" class="btn-primary block w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-xl text-center">
+                        💡 Mulai Typing
+                    </a>
+                </div>
+            </div>
+
+            <!-- Game 3: Eco Memory -->
+            <div class="game-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-br from-purple-400 to-purple-600 p-6 text-white text-center">
+                    <div class="text-5xl mb-3">🧩</div>
+                    <h3 class="text-xl font-bold">Eco Memory</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4 leading-relaxed">Asah daya ingat dengan mencocokkan kartu bergambar elemen-elemen ramah lingkungan.</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">⭐ Mudah</span>
+                        <span class="text-gray-500 text-sm">⏱️ 5-8 menit</span>
+                    </div>
+                    <a href="game6.html" class="btn-primary block w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-4 rounded-xl text-center">
+                        🧩 Mulai Memory
+                    </a>
+                </div>
+            </div>
+
+            <!-- Game 4: Eco Action -->
+            <div class="game-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-br from-blue-400 to-blue-600 p-6 text-white text-center">
+                    <div class="text-5xl mb-3">🌿</div>
+                    <h3 class="text-xl font-bold">Eco Action</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4 leading-relaxed">Simulasi aksi nyata untuk menjaga lingkungan sekolah dengan berbagai skenario menarik.</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">⭐ Sulit</span>
+                        <span class="text-gray-500 text-sm">⏱️ 10-15 menit</span>
+                    </div>
+                    <a href="game7.html" class="btn-primary block w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl text-center">
+                        🌿 Mulai Action
+                    </a>
+                </div>
+            </div>
+
+            <!-- Game 5: Eco Challenge -->
+            <div class="game-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-br from-red-400 to-pink-500 p-6 text-white text-center">
+                    <div class="text-5xl mb-3">🏆</div>
+                    <h3 class="text-xl font-bold">Eco Challenge</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4 leading-relaxed">Tantangan harian untuk menerapkan kebiasaan ramah lingkungan di kehidupan sehari-hari.</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">⭐ Bervariasi</span>
+                        <span class="text-gray-500 text-sm">⏱️ Sepanjang hari</span>
+                    </div>
+                    <a href="https://peduli-bumi-x-pplg-adiwiyata.vercel.app/" class="btn-primary block w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-center">
+                        🏆 Mulai Challenge
+                    </a>
+                </div>
+            </div>
+
+            <!-- Game 6: Eco Explorer -->
+            <div class="game-card bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-br from-teal-400 to-cyan-500 p-6 text-white text-center">
+                    <div class="text-5xl mb-3">🔍</div>
+                    <h3 class="text-xl font-bold">Eco Explorer</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4 leading-relaxed">Jelajahi lingkungan sekolah virtual dan temukan cara-cara kreatif untuk menjaga kebersihan.</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm font-medium">⭐ Sedang</span>
+                        <span class="text-gray-500 text-sm">⏱️ 8-12 menit</span>
+                    </div>
+                    <a href="https://sacg2.vercel.app/" class="btn-primary block w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-4 rounded-xl text-center">
+                        🔍 Mulai Explorer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Section -->
+        <div class="mt-12 bg-white rounded-3xl shadow-lg p-6 sm:p-8 border border-gray-100">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">🏅 Pencapaian Terbaru</h3>
+                <p class="text-gray-600">Lihat progress dan prestasi yang sudah kamu raih!</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-green-50 rounded-xl border border-green-200">
+                    <div class="text-3xl mb-2">🌱</div>
+                    <p class="text-sm font-semibold text-green-800">Eco Beginner</p>
+                </div>
+                <div class="text-center p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <div class="text-3xl mb-2">💧</div>
+                    <p class="text-sm font-semibold text-blue-800">Water Saver</p>
+                </div>
+                <div class="text-center p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                    <div class="text-3xl mb-2">⚡</div>
+                    <p class="text-sm font-semibold text-yellow-800">Energy Hero</p>
+                </div>
+                <div class="text-center p-4 bg-purple-50 rounded-xl border border-purple-200">
+                    <div class="text-3xl mb-2">♻️</div>
+                    <p class="text-sm font-semibold text-purple-800">Recycle Master</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-12 py-8 border-t border-gray-200">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <div class="flex justify-center items-center space-x-2 mb-4">
+                <div class="text-2xl">🌱</div>
+                <span class="text-lg font-semibold text-green-800">EcoSchool Games</span>
+            </div>
+            <p class="text-gray-600 text-sm">Bersama-sama menjaga lingkungan untuk masa depan yang lebih hijau 🌍</p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize stats display
+        let totalPoints = localStorage.getItem('ecoPoints') || 0;
+        let gamesPlayed = localStorage.getItem('ecoGamesPlayed') || 0;
+
+        function updateStats() {
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('gamesPlayed').textContent = gamesPlayed;
+        }
+
+        // Load stats on page load
+        updateStats();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9792a480e51c8e9d',t:'MTc1Njg3NTE5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

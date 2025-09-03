@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matching Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .card-flip {
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      position: relative;
+      cursor: pointer;
+    }
+    .card-flip.flipped {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      backface-visibility: hidden;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+    }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+    .bounce { animation: bounce 0.6s; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .shake { animation: shake 0.5s; }
+    .matched-check {
+      position: absolute;
+      top: 5px;
+      right: 8px;
+      font-size: 1.2rem;
+      color: #22c55e;
+      display: none;
+    }
+    .card-flip[data-matched="true"] .matched-check {
+      display: block;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-green-100 to-blue-100 min-h-screen p-4">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-green-700 mb-2">🌱 Matching Game 🗂️</h1>
+      <p class="text-lg text-gray-700 mb-4">Find the perfect match for each type of waste!</p>
+      
+      <!-- Game Stats -->
+      <div class="flex justify-center gap-6 mb-4">
+        <div class="bg-white rounded-lg px-4 py-2 shadow-md">
+          <span class="text-sm text-gray-600">Waktu:</span>
+          <span id="timer" class="font-bold text-blue-600 ml-1">00:00</span>
+        </div>
+        <div class="bg-white rounded-lg px-4 py-2 shadow-md">
+          <span class="text-sm text-gray-600">Pasangan:</span>
+          <span id="matches" class="font-bold text-green-600 ml-1">0/6</span>
+        </div>
+        <div class="bg-white rounded-lg px-4 py-2 shadow-md">
+          <span class="text-sm text-gray-600">Percobaan:</span>
+          <span id="attempts" class="font-bold text-orange-600 ml-1">0</span>
+        </div>
+      </div>
+      
+      <button id="startBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors">
+        🎮 Mulai Permainan
+      </button>
+    </div>
+
+    <!-- Game Board -->
+    <div id="gameBoard" class="grid grid-cols-4 gap-4 max-w-3xl mx-auto mb-8" style="display: none;">
+      <!-- Cards will be generated here -->
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+      <div class="bg-white rounded-xl p-8 text-center max-w-md mx-4 shadow-2xl">
+        <div class="text-6xl mb-4">🎉</div>
+        <h2 class="text-2xl font-bold text-green-700 mb-2">Selamat!</h2>
+        <p class="text-gray-700 mb-4">Kamu berhasil mencocokkan semua sampah dengan tempat yang tepat!</p>
+        <div id="finalStats" class="bg-gray-100 rounded-lg p-4 mb-4"></div>
+        <button id="playAgainBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">
+          🔄 Main Lagi
+        </button>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="bg-white rounded-xl p-6 shadow-lg">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">📋 Cara Bermain:</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <h4 class="font-semibold text-green-700 mb-2">Aturan:</h4>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li>• Klik kartu untuk membaliknya</li>
+            <li>• Cocokkan sampah dengan tempat sampah yang tepat</li>
+            <li>• Selesaikan semua pasangan untuk menang</li>
+            <li>• Semakin cepat, semakin baik skormu!</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-blue-700 mb-2">Jenis Sampah:</h4>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li>🗞️ Kertas → 📄 Tempat Kertas</li>
+            <li>🥤 Plastik → 🛢️ Tempat Plastik</li>
+            <li>🥫 Kaleng → ♻️ Tempat Logam</li>
+            <li>🍌 Organik → 🌱 Tempat Organik</li>
+            <li>🔋 Baterai → ⚡ Tempat B3</li>
+            <li>🍶 Kaca → 💎 Tempat Kaca</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Game data
+    const gameData = [
+      { id: 1, type: 'waste', content: '🗞️', name: 'Kertas', pair: 2 },
+      { id: 2, type: 'bin', content: '📄', name: 'Tempat Kertas', pair: 1 },
+      { id: 3, type: 'waste', content: '🥤', name: 'Plastik', pair: 4 },
+      { id: 4, type: 'bin', content: '🛢️', name: 'Tempat Plastik', pair: 3 },
+      { id: 5, type: 'waste', content: '🥫', name: 'Kaleng', pair: 6 },
+      { id: 6, type: 'bin', content: '♻️', name: 'Tempat Logam', pair: 5 },
+      { id: 7, type: 'waste', content: '🍌', name: 'Organik', pair: 8 },
+      { id: 8, type: 'bin', content: '🌱', name: 'Tempat Organik', pair: 7 },
+      { id: 9, type: 'waste', content: '🔋', name: 'Baterai', pair: 10 },
+      { id: 10, type: 'bin', content: '⚡', name: 'Tempat B3', pair: 9 },
+      { id: 11, type: 'waste', content: '🍶', name: 'Kaca', pair: 12 },
+      { id: 12, type: 'bin', content: '💎', name: 'Tempat Kaca', pair: 11 }
+    ];
+
+    // Game state
+    let gameState = {
+      cards: [],
+      flippedCards: [],
+      matches: 0,
+      attempts: 0,
+      startTime: null,
+      timer: null,
+      gameStarted: false
+    };
+
+    // DOM elements
+    const startBtn = document.getElementById('startBtn');
+    const gameBoard = document.getElementById('gameBoard');
+    const timerDisplay = document.getElementById('timer');
+    const matchesDisplay = document.getElementById('matches');
+    const attemptsDisplay = document.getElementById('attempts');
+    const successModal = document.getElementById('successModal');
+    const finalStats = document.getElementById('finalStats');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+
+    // Shuffle array function
+    function shuffle(array) {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    // Create card element
+    function createCard(cardData, index) {
+      const card = document.createElement('div');
+      card.className = 'card-flip w-full h-32 relative';
+      card.dataset.id = cardData.id;
+      card.dataset.pair = cardData.pair;
+      card.dataset.matched = 'false';
+      
+      const bgColor = cardData.type === 'waste' ? 'bg-red-100 border-red-300' : 'bg-green-100 border-green-300';
+      
+      card.innerHTML = `
+        <div class="card-front ${bgColor} border-2 rounded-lg flex flex-col items-center justify-center h-full shadow-md">
+          <div class="text-2xl">❓</div>
+          <div class="text-xs text-gray-600 mt-1">Klik untuk buka</div>
+        </div>
+        <div class="card-back ${bgColor} border-2 rounded-lg flex flex-col items-center justify-center h-full shadow-md">
+          <div class="text-3xl mb-1">${cardData.content}</div>
+          <div class="text-xs text-center text-gray-700 font-medium">${cardData.name}</div>
+          <div class="matched-check">✓</div>
+        </div>
+      `;
+      
+      card.addEventListener('click', () => handleCardClick(card));
+      return card;
+    }
+
+    // Handle card click
+    function handleCardClick(card) {
+      if (!gameState.gameStarted) return;
+      if (card.classList.contains('flipped')) return;
+      if (card.dataset.matched === 'true') return;
+      if (gameState.flippedCards.length >= 2) return;
+
+      // Flip card
+      card.classList.add('flipped');
+      gameState.flippedCards.push(card);
+
+      // Check for match when 2 cards are flipped
+      if (gameState.flippedCards.length === 2) {
+        setTimeout(checkMatch, 800);
+      }
+    }
+
+    // Check for match
+    function checkMatch() {
+      const [card1, card2] = gameState.flippedCards;
+      const id1 = parseInt(card1.dataset.id);
+      const id2 = parseInt(card2.dataset.id);
+      const pair1 = parseInt(card1.dataset.pair);
+      const pair2 = parseInt(card2.dataset.pair);
+
+      gameState.attempts++;
+      updateDisplay();
+
+      if (id1 === pair2 && id2 === pair1) {
+        // Match found!
+        card1.dataset.matched = 'true';
+        card2.dataset.matched = 'true';
+        card1.classList.add('bounce');
+        card2.classList.add('bounce');
+        
+        gameState.matches++;
+        updateDisplay();
+
+        // Remove bounce animation after it completes
+        setTimeout(() => {
+          card1.classList.remove('bounce');
+          card2.classList.remove('bounce');
+        }, 600);
+
+        // Check if game is complete
+        if (gameState.matches === 6) {
+          setTimeout(endGame, 1000);
+        }
+      } else {
+        // No match
+        card1.classList.add('shake');
+        card2.classList.add('shake');
+        
+        setTimeout(() => {
+          card1.classList.remove('flipped', 'shake');
+          card2.classList.remove('flipped', 'shake');
+        }, 500);
+      }
+
+      gameState.flippedCards = [];
+    }
+
+    // Start game
+    function startGame() {
+      gameState = {
+        cards: shuffle(gameData),
+        flippedCards: [],
+        matches: 0,
+        attempts: 0,
+        startTime: Date.now(),
+        timer: null,
+        gameStarted: true
+      };
+
+      // Hide start button and show game board
+      startBtn.style.display = 'none';
+      gameBoard.style.display = 'grid';
+
+      // Create cards
+      gameBoard.innerHTML = '';
+      gameState.cards.forEach((cardData, index) => {
+        const card = createCard(cardData, index);
+        gameBoard.appendChild(card);
+      });
+
+      // Start timer
+      gameState.timer = setInterval(updateTimer, 1000);
+      updateDisplay();
+    }
+
+    // Update timer
+    function updateTimer() {
+      if (!gameState.startTime) return;
+      
+      const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Update display
+    function updateDisplay() {
+      matchesDisplay.textContent = `${gameState.matches}/6`;
+      attemptsDisplay.textContent = gameState.attempts;
+    }
+
+    // End game
+    function endGame() {
+      gameState.gameStarted = false;
+      clearInterval(gameState.timer);
+      
+      const totalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+      const minutes = Math.floor(totalTime / 60);
+      const seconds = totalTime % 60;
+      
+      finalStats.innerHTML = `
+        <div class="text-sm space-y-2">
+          <div><strong>Waktu:</strong> ${minutes}:${seconds.toString().padStart(2, '0')}</div>
+          <div><strong>Percobaan:</strong> ${gameState.attempts}</div>
+          <div><strong>Akurasi:</strong> ${Math.round((6 / gameState.attempts) * 100)}%</div>
+        </div>
+      `;
+      
+      successModal.style.display = 'flex';
+    }
+
+    // Reset game
+    function resetGame() {
+      clearInterval(gameState.timer);
+      gameState.gameStarted = false;
+      gameBoard.style.display = 'none';
+      startBtn.style.display = 'inline-block';
+      successModal.style.display = 'none';
+      
+      // Reset displays
+      timerDisplay.textContent = '00:00';
+      matchesDisplay.textContent = '0/6';
+      attemptsDisplay.textContent = '0';
+    }
+
+    // Event listeners
+    startBtn.addEventListener('click', startGame);
+    playAgainBtn.addEventListener('click', resetGame);
+
+    // Close modal when clicking outside
+    successModal.addEventListener('click', (e) => {
+      if (e.target === successModal) {
+        resetGame();
+      }
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97928d8c70708e9d',t:'MTc1Njg3NDI1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

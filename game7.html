@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Classroom Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87ceeb 0%, #87ceeb 60%, #8fbc8f 60%, #8fbc8f 100%);
+        }
+
+        .classroom {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(45deg, #d4a574 25%, transparent 25%), 
+                        linear-gradient(-45deg, #d4a574 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #d4a574 75%), 
+                        linear-gradient(-45deg, transparent 75%, #d4a574 75%);
+            background-size: 40px 40px;
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+            background-color: #e6c2a6;
+        }
+
+        .blackboard {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 200px;
+            background: #2d3436;
+            border: 8px solid #8b4513;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .chalk-marks {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .chalk-marks.erased {
+            opacity: 0;
+        }
+
+        .eraser {
+            position: absolute;
+            top: 20%;
+            right: 15%;
+            width: 40px;
+            height: 20px;
+            background: #e74c3c;
+            border-radius: 5px;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 2px solid #c0392b;
+        }
+
+        .eraser:active {
+            cursor: grabbing;
+        }
+
+        .desk-target {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            border: 2px dashed #74b9ff;
+            border-radius: 8px;
+            opacity: 0.5;
+        }
+
+        .target1 {
+            bottom: 45%;
+            left: 20%;
+        }
+
+        .target2 {
+            bottom: 45%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .target3 {
+            bottom: 45%;
+            right: 20%;
+        }
+
+        .desk {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: #8b4513;
+            border-radius: 8px;
+            cursor: grab;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            border: 3px solid #654321;
+        }
+
+        .desk:active {
+            cursor: grabbing;
+        }
+
+        .desk1 {
+            bottom: 25%;
+            left: 10%;
+            transform: rotate(-15deg);
+        }
+
+        .desk2 {
+            bottom: 30%;
+            left: 60%;
+            transform: rotate(20deg);
+        }
+
+        .desk3 {
+            bottom: 20%;
+            right: 15%;
+            transform: rotate(-10deg);
+        }
+
+        .desk.positioned {
+            transform: rotate(0deg) !important;
+            transition: all 0.5s ease;
+        }
+
+        .trash-bin {
+            position: absolute;
+            bottom: 15%;
+            width: 50px;
+            height: 60px;
+            border-radius: 10px 10px 5px 5px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .trash-bin.blue {
+            left: 5%;
+            background: #0984e3;
+            border: 3px solid #0066cc;
+        }
+
+        .trash-bin.green {
+            left: 15%;
+            background: #00b894;
+            border: 3px solid #00a085;
+        }
+
+        .trash-item {
+            position: absolute;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .trash-item:active {
+            cursor: grabbing;
+        }
+
+        .paper {
+            bottom: 35%;
+            left: 30%;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .bottle {
+            bottom: 40%;
+            right: 30%;
+            width: 15px;
+            height: 40px;
+            background: #74b9ff;
+            border-radius: 3px 3px 8px 8px;
+            border: 2px solid #0984e3;
+        }
+
+        .candy-wrapper {
+            bottom: 25%;
+            left: 70%;
+            width: 25px;
+            height: 15px;
+            background: #fd79a8;
+            border-radius: 8px;
+            border: 1px solid #e84393;
+        }
+
+        .broom {
+            position: absolute;
+            bottom: 10%;
+            right: 5%;
+            width: 15px;
+            height: 80px;
+            background: linear-gradient(to bottom, #8b4513 0%, #8b4513 70%, #f39c12 70%, #f39c12 100%);
+            border-radius: 3px;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .broom:active {
+            cursor: grabbing;
+        }
+
+        .dust-spot {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, rgba(139,69,19,0.6) 0%, rgba(139,69,19,0.3) 50%, transparent 100%);
+            border-radius: 50%;
+            transition: opacity 0.5s ease;
+        }
+
+        .dust1 {
+            bottom: 25%;
+            left: 40%;
+        }
+
+        .dust2 {
+            bottom: 35%;
+            right: 40%;
+        }
+
+        .dust3 {
+            bottom: 30%;
+            left: 25%;
+        }
+
+        .dust-spot.cleaned {
+            opacity: 0;
+        }
+
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 120px;
+        }
+
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: center;
+        }
+
+        .score, .level {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2d3436;
+            text-align: center;
+        }
+
+        .help-btn {
+            background: #74b9ff;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            align-self: center;
+        }
+
+        .help-btn:hover {
+            background: #0984e3;
+        }
+
+        .task-list {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            min-width: 200px;
+        }
+
+        .task-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .task-item.completed {
+            background: #00b894;
+            color: white;
+            text-decoration: line-through;
+        }
+
+        .instructions-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .instructions-panel.hidden {
+            display: none;
+        }
+
+        .instructions-content h3 {
+            color: #2d3436;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .instruction-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #636e72;
+        }
+
+        .close-btn:hover {
+            color: #2d3436;
+        }
+
+        .dragging {
+            opacity: 0.7;
+            transform: scale(1.1);
+            z-index: 100;
+        }
+
+        .drop-zone {
+            border: 3px dashed #00b894 !important;
+            background: rgba(0, 184, 148, 0.1) !important;
+        }
+
+        .game-complete {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .game-complete.hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .ui-panel, .task-list {
+                font-size: 12px;
+                padding: 10px;
+            }
+            
+            .blackboard {
+                width: 250px;
+                height: 150px;
+            }
+            
+            .chalk-marks {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="classroom">
+            <!-- Floor -->
+            <div class="floor"></div>
+            
+            <!-- Blackboard -->
+            <div class="blackboard">
+                <div class="chalk-marks" id="chalkMarks">Matematika itu Sulit! 😵</div>
+            </div>
+            
+            <!-- Eraser -->
+            <div class="eraser" id="eraser" draggable="true"></div>
+            
+            <!-- Desk targets (invisible guides) -->
+            <div class="desk-target target1"></div>
+            <div class="desk-target target2"></div>
+            <div class="desk-target target3"></div>
+            
+            <!-- Desks -->
+            <div class="desk desk1" id="desk1" draggable="true"></div>
+            <div class="desk desk2" id="desk2" draggable="true"></div>
+            <div class="desk desk3" id="desk3" draggable="true"></div>
+            
+            <!-- Trash bins -->
+            <div class="trash-bin blue" id="blueBin"></div>
+            <div class="trash-bin green" id="greenBin"></div>
+            
+            <!-- Trash items -->
+            <div class="trash-item paper" id="paper" draggable="true"></div>
+            <div class="trash-item bottle" id="bottle" draggable="true"></div>
+            <div class="trash-item candy-wrapper" id="candyWrapper" draggable="true"></div>
+            
+            <!-- Broom -->
+            <div class="broom" id="broom" draggable="true"></div>
+            
+            <!-- Dust spots -->
+            <div class="dust-spot dust1" id="dust1"></div>
+            <div class="dust-spot dust2" id="dust2"></div>
+            <div class="dust-spot dust3" id="dust3"></div>
+        </div>
+        
+        <!-- UI Panel -->
+        <div class="ui-panel">
+            <div class="timer" id="timer">60</div>
+            <div class="score" id="score">Skor: 0</div>
+            <div class="level" id="level">Level 1</div>
+            <button class="help-btn" onclick="showGameHelp()" title="Bantuan">❓</button>
+        </div>
+        
+        <!-- Task List -->
+        <div class="task-list">
+            <h3 style="margin-bottom: 10px; color: #2d3436;">Tugas:</h3>
+            <div class="task-item" id="task-blackboard">Hapus papan tulis</div>
+            <div class="task-item" id="task-trash">Buang sampah</div>
+            <div class="task-item" id="task-desks">Rapikan meja</div>
+            <div class="task-item" id="task-sweep">Sapu lantai</div>
+        </div>
+        
+        <!-- Instructions Panel -->
+        <div class="instructions-panel hidden" id="instructionsPanel">
+            <button class="close-btn" onclick="hideGameHelp()">×</button>
+            <div class="instructions-content">
+                <h3>Cara Bermain</h3>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🧽</span>
+                    <div>
+                        <strong>Hapus Papan Tulis:</strong><br>
+                        Seret penghapus merah ke papan tulis hitam untuk menghapus tulisan
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🗑️</span>
+                    <div>
+                        <strong>Buang Sampah:</strong><br>
+                        Seret sampah ke tempat sampah yang benar:<br>
+                        • Botol biru → Tempat sampah biru<br>
+                        • Kertas & permen → Tempat sampah hijau
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">📚</span>
+                    <div>
+                        <strong>Rapikan Meja:</strong><br>
+                        Seret meja-meja yang berantakan ke posisi yang benar (area bergaris putus-putus)
+                    </div>
+                </div>
+                <div class="instruction-item">
+                    <span class="instruction-icon">🧹</span>
+                    <div>
+                        <strong>Sapu Lantai:</strong><br>
+                        Seret sapu ke noda-noda coklat di lantai untuk membersihkannya
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Complete Panel -->
+        <div class="game-complete hidden" id="gameComplete">
+            <h2 style="color: #00b894; margin-bottom: 15px;">🎉 Selamat!</h2>
+            <p style="margin-bottom: 15px;">Kelas sudah bersih!</p>
+            <p style="margin-bottom: 20px;">Skor Akhir: <span id="finalScore">0</span></p>
+            <button onclick="restartGame()" style="background: #74b9ff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Main Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            score: 0,
+            timeLeft: 60,
+            level: 1,
+            tasksCompleted: {
+                blackboard: false,
+                trash: false,
+                desks: false,
+                sweep: false
+            },
+            trashCollected: {
+                paper: false,
+                bottle: false,
+                candyWrapper: false
+            },
+            desksPositioned: {
+                desk1: false,
+                desk2: false,
+                desk3: false
+            },
+            dustCleaned: {
+                dust1: false,
+                dust2: false,
+                dust3: false
+            }
+        };
+
+        let gameTimer;
+        let draggedElement = null;
+
+        // Initialize game
+        function initGame() {
+            startTimer();
+            setupDragAndDrop();
+            updateUI();
+        }
+
+        // Timer functionality
+        function startTimer() {
+            gameTimer = setInterval(() => {
+                gameState.timeLeft--;
+                updateUI();
+                
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('timer').textContent = gameState.timeLeft;
+            document.getElementById('score').textContent = `Skor: ${gameState.score}`;
+            document.getElementById('level').textContent = `Level ${gameState.level}`;
+        }
+
+        // Drag and drop functionality
+        function setupDragAndDrop() {
+            const draggableElements = document.querySelectorAll('[draggable="true"]');
+            
+            draggableElements.forEach(element => {
+                element.addEventListener('dragstart', handleDragStart);
+                element.addEventListener('dragend', handleDragEnd);
+            });
+
+            // Set up drop zones
+            document.addEventListener('dragover', handleDragOver);
+            document.addEventListener('drop', handleDrop);
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            
+            if (!draggedElement) return;
+
+            const dropTarget = e.target;
+            const rect = dropTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Check if dropped on valid target
+            if (isValidDrop(draggedElement, dropTarget, x, y)) {
+                handleValidDrop(draggedElement, dropTarget);
+            }
+        }
+
+        function isValidDrop(dragged, target, x, y) {
+            const draggedId = dragged.id;
+            const targetId = target.id;
+            const targetClass = target.className;
+
+            // Eraser on blackboard
+            if (draggedId === 'eraser' && targetId === 'chalkMarks') {
+                return true;
+            }
+
+            // Trash items on bins
+            if (draggedId === 'bottle' && targetClass.includes('blue')) {
+                return true;
+            }
+            if ((draggedId === 'paper' || draggedId === 'candyWrapper') && targetClass.includes('green')) {
+                return true;
+            }
+
+            // Desks on targets
+            if (draggedId.includes('desk') && targetClass.includes('desk-target')) {
+                return true;
+            }
+
+            // Broom on dust
+            if (draggedId === 'broom' && targetClass.includes('dust-spot')) {
+                return true;
+            }
+
+            return false;
+        }
+
+        function handleValidDrop(dragged, target) {
+            const draggedId = dragged.id;
+            const targetClass = target.className;
+
+            // Handle eraser on blackboard
+            if (draggedId === 'eraser' && target.id === 'chalkMarks') {
+                document.getElementById('chalkMarks').classList.add('erased');
+                gameState.tasksCompleted.blackboard = true;
+                updateTaskStatus('task-blackboard');
+                addScore(100);
+            }
+
+            // Handle trash disposal
+            if (draggedId === 'bottle' && targetClass.includes('blue')) {
+                dragged.style.display = 'none';
+                gameState.trashCollected.bottle = true;
+                checkTrashTask();
+                addScore(50);
+            }
+            if ((draggedId === 'paper' || draggedId === 'candyWrapper') && targetClass.includes('green')) {
+                dragged.style.display = 'none';
+                gameState.trashCollected[draggedId] = true;
+                checkTrashTask();
+                addScore(50);
+            }
+
+            // Handle desk positioning
+            if (draggedId.includes('desk') && targetClass.includes('desk-target')) {
+                const targetRect = target.getBoundingClientRect();
+                const containerRect = document.querySelector('.classroom').getBoundingClientRect();
+                
+                dragged.style.left = (targetRect.left - containerRect.left) + 'px';
+                dragged.style.bottom = (containerRect.bottom - targetRect.bottom) + 'px';
+                dragged.classList.add('positioned');
+                
+                gameState.desksPositioned[draggedId] = true;
+                checkDesksTask();
+                addScore(75);
+            }
+
+            // Handle dust cleaning
+            if (draggedId === 'broom' && targetClass.includes('dust-spot')) {
+                target.classList.add('cleaned');
+                gameState.dustCleaned[target.id] = true;
+                checkSweepTask();
+                addScore(25);
+            }
+        }
+
+        function checkTrashTask() {
+            if (Object.values(gameState.trashCollected).every(collected => collected)) {
+                gameState.tasksCompleted.trash = true;
+                updateTaskStatus('task-trash');
+            }
+        }
+
+        function checkDesksTask() {
+            if (Object.values(gameState.desksPositioned).every(positioned => positioned)) {
+                gameState.tasksCompleted.desks = true;
+                updateTaskStatus('task-desks');
+            }
+        }
+
+        function checkSweepTask() {
+            if (Object.values(gameState.dustCleaned).every(cleaned => cleaned)) {
+                gameState.tasksCompleted.sweep = true;
+                updateTaskStatus('task-sweep');
+            }
+        }
+
+        function updateTaskStatus(taskId) {
+            const taskElement = document.getElementById(taskId);
+            taskElement.classList.add('completed');
+            
+            // Check if all tasks completed
+            if (Object.values(gameState.tasksCompleted).every(completed => completed)) {
+                setTimeout(() => {
+                    completeGame();
+                }, 500);
+            }
+        }
+
+        function addScore(points) {
+            gameState.score += points;
+            updateUI();
+        }
+
+        function completeGame() {
+            clearInterval(gameTimer);
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('gameComplete').classList.remove('hidden');
+        }
+
+        function endGame() {
+            clearInterval(gameTimer);
+            alert(`Waktu habis! Skor akhir: ${gameState.score}`);
+            restartGame();
+        }
+
+        function restartGame() {
+            // Reset game state
+            gameState = {
+                score: 0,
+                timeLeft: 60,
+                level: 1,
+                tasksCompleted: {
+                    blackboard: false,
+                    trash: false,
+                    desks: false,
+                    sweep: false
+                },
+                trashCollected: {
+                    paper: false,
+                    bottle: false,
+                    candyWrapper: false
+                },
+                desksPositioned: {
+                    desk1: false,
+                    desk2: false,
+                    desk3: false
+                },
+                dustCleaned: {
+                    dust1: false,
+                    dust2: false,
+                    dust3: false
+                }
+            };
+
+            // Reset UI elements
+            document.getElementById('chalkMarks').classList.remove('erased');
+            document.getElementById('gameComplete').classList.add('hidden');
+            
+            // Reset trash items
+            document.getElementById('paper').style.display = 'block';
+            document.getElementById('bottle').style.display = 'block';
+            document.getElementById('candyWrapper').style.display = 'block';
+            
+            // Reset desks
+            const desks = document.querySelectorAll('.desk');
+            desks.forEach((desk, index) => {
+                desk.classList.remove('positioned');
+                if (desk.id === 'desk1') {
+                    desk.style.left = '10%';
+                    desk.style.bottom = '25%';
+                } else if (desk.id === 'desk2') {
+                    desk.style.left = '60%';
+                    desk.style.bottom = '30%';
+                } else if (desk.id === 'desk3') {
+                    desk.style.right = '15%';
+                    desk.style.bottom = '20%';
+                    desk.style.left = 'auto';
+                }
+            });
+            
+            // Reset dust spots
+            document.querySelectorAll('.dust-spot').forEach(dust => {
+                dust.classList.remove('cleaned');
+            });
+            
+            // Reset task items
+            document.querySelectorAll('.task-item').forEach(task => {
+                task.classList.remove('completed');
+            });
+
+            clearInterval(gameTimer);
+            initGame();
+        }
+
+        function showGameHelp() {
+            document.getElementById('instructionsPanel').classList.remove('hidden');
+        }
+
+        function hideGameHelp() {
+            document.getElementById('instructionsPanel').classList.add('hidden');
+        }
+
+        // Start the game when page loads
+        window.addEventListener('load', initGame);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9792b574c0358e9d',t:'MTc1Njg3NTg5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
