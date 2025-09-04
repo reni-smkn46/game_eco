@@ -121,6 +121,21 @@
       transform: scale(1.05);
     }
 
+    .answer-btn.correct {
+      background: #00b894;
+      color: white;
+    }
+
+    .answer-btn.wrong {
+      background: #e17055;
+      color: white;
+    }
+
+    .answer-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
     /* ====== SCORE & TIMER ====== */
     .scores {
       display: flex;
@@ -159,6 +174,46 @@
       font-weight: bold;
     }
 
+    .hidden {
+      display: none;
+    }
+
+    .next-btn {
+      background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      margin: 15px auto;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: block;
+      transition: 0.3s;
+    }
+
+    .next-btn:hover {
+      background: linear-gradient(135deg, #e84393, #f39c12);
+      transform: translateY(-2px);
+    }
+
+    .restart-btn {
+      background: linear-gradient(135deg, #74b9ff, #0984e3);
+      border: none;
+      color: white;
+      padding: 15px 30px;
+      margin: 20px auto;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: block;
+      transition: 0.3s;
+    }
+
+    .restart-btn:hover {
+      background: linear-gradient(135deg, #0984e3, #2d3436);
+      transform: translateY(-2px);
+    }
+
     /* ====== RESPONSIVE ====== */
     @media (max-width: 600px) {
       h1 {
@@ -193,32 +248,220 @@
       <span>🌍</span>
     </div>
 
-    <!-- Pilihan Mode -->
-    <button class="mode-btn">🎮 Mode Belajar</button>
-    <button class="mode-btn">⚔️ Mode Battle</button>
+    <!-- Menu Utama -->
+    <div id="main-menu">
+      <button class="mode-btn" onclick="startGame('easy')">🌱 Mode Mudah (10 detik per soal)</button>
+      <button class="mode-btn" onclick="startGame('hard')">🔥 Mode Sulit (5 detik per soal)</button>
+    </div>
 
-    <!-- Kartu Pertanyaan -->
-    <div class="question-card">
-      <div class="question-text">Apa yang harus kita lakukan dengan sampah plastik?</div>
-      <div class="answers">
-        <button class="answer-btn">Buang sembarangan</button>
-        <button class="answer-btn">Daur ulang ♻️</button>
-        <button class="answer-btn">Bakar di rumah</button>
-        <button class="answer-btn">Biarkan saja</button>
+    <!-- Area Game -->
+    <div id="game-area" class="hidden">
+      <div class="timer" id="timer">Waktu: 10</div>
+      
+      <div class="question-card">
+        <div class="question-text" id="question-text"></div>
+        <div class="answers" id="answers"></div>
+      </div>
+
+      <button class="next-btn hidden" id="next-btn" onclick="nextQuestion()">Soal Berikutnya →</button>
+
+      <div class="scores">
+        <div class="score-card">
+          <div>Soal: <span id="current-question">1</span>/10</div>
+        </div>
+        <div class="score-card">
+          <div>Skor: <span id="current-score">0</span></div>
+        </div>
       </div>
     </div>
 
-    <!-- Timer -->
-    <div class="timer">⏳ Waktu: 30 detik</div>
-
-    <!-- Skor -->
-    <div class="scores">
-      <div class="score-card">👩 Player 1: 10</div>
-      <div class="score-card">🧑 Player 2: 8</div>
+    <!-- Hasil Akhir -->
+    <div id="final-result" class="hidden">
+      <div class="final-score">
+        🎉 Skor Akhir: <span id="final-score-text">0</span>/10
+      </div>
+      <div style="text-align: center; margin: 20px 0; font-size: 1.1rem;" id="result-message"></div>
+      <button class="restart-btn" onclick="restartGame()">🔄 Main Lagi</button>
     </div>
-
-    <!-- Skor Akhir -->
-    <div class="final-score">🎉 Player 1 Menang!</div>
   </div>
-</body>
+
+  <script>
+    // Data soal quiz lingkungan
+    const questions = [
+      {
+        question: "Apa yang dimaksud dengan efek rumah kaca?",
+        answers: ["Proses pemanasan global akibat gas-gas tertentu", "Cara menanam tanaman di rumah", "Metode menghemat listrik", "Teknik daur ulang sampah"],
+        correct: 0
+      },
+      {
+        question: "Manakah yang BUKAN termasuk energi terbarukan?",
+        answers: ["Energi matahari", "Energi angin", "Batu bara", "Energi air"],
+        correct: 2
+      },
+      {
+        question: "Berapa lama waktu yang dibutuhkan plastik untuk terurai?",
+        answers: ["1-5 tahun", "10-20 tahun", "50-100 tahun", "450-1000 tahun"],
+        correct: 3
+      },
+      {
+        question: "Apa kepanjangan dari 3R dalam pengelolaan sampah?",
+        answers: ["Reduce, Reuse, Recycle", "Read, Run, Rest", "Red, Round, Rectangle", "Rain, River, Rock"],
+        correct: 0
+      },
+      {
+        question: "Gas apa yang paling berkontribusi terhadap pemanasan global?",
+        answers: ["Oksigen", "Nitrogen", "Karbon dioksida", "Hidrogen"],
+        correct: 2
+      },
+      {
+        question: "Manakah cara terbaik menghemat air di rumah?",
+        answers: ["Mandi dengan shower", "Mematikan keran saat gosok gigi", "Menggunakan mesin cuci setiap hari", "Menyiram tanaman siang hari"],
+        correct: 1
+      },
+      {
+        question: "Apa yang dimaksud dengan jejak karbon?",
+        answers: ["Bekas kaki di tanah", "Total emisi gas rumah kaca yang dihasilkan", "Cara berjalan yang ramah lingkungan", "Metode menanam pohon"],
+        correct: 1
+      },
+      {
+        question: "Manakah yang termasuk sumber energi fosil?",
+        answers: ["Angin", "Matahari", "Minyak bumi", "Air terjun"],
+        correct: 2
+      },
+      {
+        question: "Apa manfaat utama dari daur ulang?",
+        answers: ["Mengurangi sampah dan menghemat sumber daya", "Membuat barang lebih mahal", "Menambah polusi udara", "Mempercepat pemanasan global"],
+        correct: 0
+      },
+      {
+        question: "Lapisan atmosfer mana yang melindungi bumi dari radiasi UV?",
+        answers: ["Troposfer", "Stratosfer (Ozon)", "Mesosfer", "Termosfer"],
+        correct: 1
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timeLeft = 10;
+    let timer;
+    let gameMode = 'easy';
+    let answered = false;
+
+    function startGame(mode) {
+      gameMode = mode;
+      timeLeft = mode === 'easy' ? 10 : 5;
+      currentQuestionIndex = 0;
+      score = 0;
+      answered = false;
+
+      document.getElementById('main-menu').classList.add('hidden');
+      document.getElementById('game-area').classList.remove('hidden');
+      document.getElementById('final-result').classList.add('hidden');
+
+      showQuestion();
+      startTimer();
+    }
+
+    function showQuestion() {
+      const question = questions[currentQuestionIndex];
+      document.getElementById('question-text').textContent = question.question;
+      document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+      document.getElementById('current-score').textContent = score;
+
+      const answersContainer = document.getElementById('answers');
+      answersContainer.innerHTML = '';
+
+      question.answers.forEach((answer, index) => {
+        const button = document.createElement('button');
+        button.className = 'answer-btn';
+        button.textContent = answer;
+        button.onclick = () => selectAnswer(index);
+        answersContainer.appendChild(button);
+      });
+
+      document.getElementById('next-btn').classList.add('hidden');
+      answered = false;
+      timeLeft = gameMode === 'easy' ? 10 : 5;
+    }
+
+    function selectAnswer(selectedIndex) {
+      if (answered) return;
+      
+      answered = true;
+      clearInterval(timer);
+      
+      const question = questions[currentQuestionIndex];
+      const buttons = document.querySelectorAll('.answer-btn');
+      
+      buttons.forEach((button, index) => {
+        button.disabled = true;
+        if (index === question.correct) {
+          button.classList.add('correct');
+        } else if (index === selectedIndex && index !== question.correct) {
+          button.classList.add('wrong');
+        }
+      });
+
+      if (selectedIndex === question.correct) {
+        score++;
+        document.getElementById('current-score').textContent = score;
+      }
+
+      setTimeout(() => {
+        if (currentQuestionIndex < questions.length - 1) {
+          document.getElementById('next-btn').classList.remove('hidden');
+        } else {
+          showFinalResult();
+        }
+      }, 1500);
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      showQuestion();
+      startTimer();
+    }
+
+    function startTimer() {
+      document.getElementById('timer').textContent = `Waktu: ${timeLeft}`;
+      
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = `Waktu: ${timeLeft}`;
+        
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          if (!answered) {
+            selectAnswer(-1); // Waktu habis, jawaban salah
+          }
+        }
+      }, 1000);
+    }
+
+    function showFinalResult() {
+      document.getElementById('game-area').classList.add('hidden');
+      document.getElementById('final-result').classList.remove('hidden');
+      document.getElementById('final-score-text').textContent = score;
+
+      let message = '';
+      if (score >= 8) {
+        message = '🌟 Luar biasa! Kamu adalah pahlawan lingkungan sejati!';
+      } else if (score >= 6) {
+        message = '👍 Bagus! Pengetahuan lingkunganmu cukup baik!';
+      } else if (score >= 4) {
+        message = '📚 Tidak buruk, tapi masih bisa belajar lebih banyak!';
+      } else {
+        message = '🌱 Yuk belajar lebih banyak tentang lingkungan!';
+      }
+      
+      document.getElementById('result-message').textContent = message;
+    }
+
+    function restartGame() {
+      document.getElementById('final-result').classList.add('hidden');
+      document.getElementById('main-menu').classList.remove('hidden');
+      clearInterval(timer);
+    }
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9799e42852d083e8',t:'MTc1Njk1MTIwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
